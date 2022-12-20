@@ -57,7 +57,6 @@ runs:
           esac
         }
 
-
         trap "popd >/dev/null" EXIT
 
         pushd ${{ inputs.install-dir }} > /dev/null
@@ -126,7 +125,7 @@ runs:
 
         semver='^([0-9]+\.){0,2}(\*|[0-9]+)$'
         if [[ ${{ inputs.vault-release }} =~ $semver ]]; then
-          log_info "Custom Hashicorp Vault version '${{ inputs.vault-release }}' requested"
+          log_info "Hashicorp Vault version '${{ inputs.vault-release }}' requested"
         else
           log_error "Unable to validate requested Hashicorp Vault version: '${{ inputs.vault-release }}'"
           exit 1
@@ -136,6 +135,9 @@ runs:
         log_info "Downloading platform-specific version '${{ inputs.vault-release }}' of vault...\n      https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/${desired_vault_filename}"
         $SUDO curl -sL https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/${desired_vault_filename} -o ${desired_vault_filename}
         $SUDO curl -sL https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/vault_${{ inputs.vault-release }}_SHA256SUMS -o SHA256SUMS
+        ls -la
+        sha256sum "${desired_vault_filename}" 
+        sha256sum --ignore-missing --check SHA256SUMS
         sha256sum "${desired_vault_filename}" | sha256sum --ignore-missing --check SHA256SUMS
         ret=$?
         if [[ $retVal -eq 0 ]]; then
