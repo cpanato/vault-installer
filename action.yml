@@ -143,7 +143,7 @@ runs:
         if [[ $retVal -eq 0 ]]; then
           $SUDO tar xvf "${desired_vault_filename}" -C "${{ inputs.install-dir }}"
           $SUDO rm SHA256SUMS 
-          $SUDO rm "${desired_vault_filename}""
+          $SUDO rm "${desired_vault_filename}"
           log_info "Installation complete!"
         else
           log_error "Unable to validate vault version: '${{ inputs.vault-release }}'"
