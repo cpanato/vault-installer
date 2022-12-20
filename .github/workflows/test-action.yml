@@ -29,3 +29,28 @@ jobs:
             exit 0
           fi
         shell: bash
+
+  test_vault_action_custom:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    permissions: {}
+    name: Install Custom Vault and test presence in path
+    steps:
+      - uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
+      - name: Install Vault
+        uses: ./
+        with:
+          vault-release: '1.12.0'
+      - name: Check install!
+        run: vault version
+      - name: Check root directory
+        run: |
+          if [[ $(git diff --stat) != '' ]]; then
+            echo 'should be clean'
+            exit 1
+          else
+            exit 0
+          fi
+        shell: bash
