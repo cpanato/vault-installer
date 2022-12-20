@@ -139,7 +139,6 @@ runs:
         echo "$(sha256sum ${desired_vault_filename})" | sha256sum --ignore-missing --check SHA256SUMS
         ret=$?
         if [[ $retVal -eq 0 ]]; then
-          log_info "SHASUM OK will install!"
           $SUDO tar xvf ${desired_vault_filename} -C ${{ inputs.install-dir }}
           $SUDO rm SHA256SUMS ${desired_vault_filename}
           log_info "Installation complete!"
