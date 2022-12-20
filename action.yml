@@ -10,7 +10,7 @@ inputs:
   vault-release:
     description: 'Hashicorp Vault release version to be installed'
     required: false
-    default: '1.12.1'
+    default: '1.12.2'
   install-dir:
     description: 'Where to install the Hashicorp Vault binary'
     required: false
@@ -136,11 +136,12 @@ runs:
         log_info "Downloading platform-specific version '${{ inputs.vault-release }}' of vault...\n      https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/${desired_vault_filename}"
         $SUDO curl -sL https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/${desired_vault_filename} -o ${desired_vault_filename}
         $SUDO curl -sL https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/vault_${{ inputs.vault-release }}_SHA256SUMS -o SHA256SUMS
-        echo "$(sha256sum ${desired_vault_filename})" | sha256sum --ignore-missing --check SHA256SUMS
+        sha256sum "${desired_vault_filename}" | sha256sum --ignore-missing --check SHA256SUMS
         ret=$?
         if [[ $retVal -eq 0 ]]; then
-          $SUDO tar xvf ${desired_vault_filename} -C ${{ inputs.install-dir }}
-          $SUDO rm SHA256SUMS ${desired_vault_filename}
+          $SUDO tar xvf "${desired_vault_filename}" -C "${{ inputs.install-dir }}"
+          $SUDO rm SHA256SUMS 
+          $SUDO rm "${desired_vault_filename}""
           log_info "Installation complete!"
         else
           log_error "Unable to validate vault version: '${{ inputs.vault-release }}'"
