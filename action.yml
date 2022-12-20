@@ -26,7 +26,7 @@ runs:
     - shell: bash
       run: |
         #!/bin/bash
-        # cosign install script
+        # vault install script
         shopt -s expand_aliases
         if [ -z "$NO_COLOR" ]; then
           alias log_info="echo -e \"\033[1;32mINFO\033[0m:\""
@@ -133,12 +133,13 @@ runs:
         fi
 
         # Download custom Hashicorp Vault
-        log_info "Downloading platform-specific version '${{ inputs.vault-release }}' of cosign...\n      https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/${desired_vault_filename}"
+        log_info "Downloading platform-specific version '${{ inputs.vault-release }}' of vault...\n      https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/${desired_vault_filename}"
         $SUDO curl -sL https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/${desired_vault_filename} -o ${desired_vault_filename}
         $SUDO curl -sL https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/vault_${{ inputs.vault-release }}_SHA256SUMS -o SHA256SUMS
-        echo "$(sha256sum ${desired_vault_filename})" | sha256sum --ignore-missing --check SHA256SUMS)"
+        echo "$(sha256sum ${desired_vault_filename})" | sha256sum --ignore-missing --check SHA256SUMS
         ret=$?
         if [[ $retVal -eq 0 ]]; then
+          log_info "SHASUM OK will install!"
           $SUDO tar xvf ${desired_vault_filename} -C ${{ inputs.install-dir }}
           $SUDO rm SHA256SUMS ${desired_vault_filename}
           log_info "Installation complete!"
