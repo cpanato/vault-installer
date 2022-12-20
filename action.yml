@@ -10,7 +10,7 @@ inputs:
   vault-release:
     description: 'Hashicorp Vault release version to be installed'
     required: false
-    default: 'v1.13.1'
+    default: '1.12.1'
   install-dir:
     description: 'Where to install the Hashicorp Vault binary'
     required: false
@@ -39,14 +39,6 @@ runs:
 
         mkdir -p ${{ inputs.install-dir }}
 
-        if [[ ${{ inputs.vault-release }} == "main" ]]; then
-          log_info "installing cosign via 'go install' from its main version"
-          GOBIN=$(go env GOPATH)/bin
-          go install github.com/sigstore/cosign/cmd/cosign@main
-          ln -s $GOBIN/cosign ${{ inputs.install-dir}}/cosign
-          exit 0
-        fi
-
         shaprog() {
           case ${{ runner.os }} in
             Linux)
@@ -65,14 +57,6 @@ runs:
           esac
         }
 
-        bootstrap_version='1.12.1'
-        bootstrap_linux_amd64_sha='116c143de377a77a7ea455a367d5e9fe5290458e8a941a6e2dd85d92aaedba67'
-        bootstrap_linux_arm_sha='fdc33fbe90daf7a496863c568fccfc98cdd664e034ae3a380c877fc6570fc7a5'
-        bootstrap_linux_arm64_sha='7b35d12518729cfe3efe2007a07862934b0a6df053146ea15243f89e6b0bfbf2'
-        bootstrap_darwin_amd64_sha='76d985c42a254bf16fa55fbf39092a34e27aba22942c2f829a6ce81ac5fdc40f'
-        bootstrap_darwin_arm64_sha='f1fa420858eb8674416a2285cb48f9887c680eb3437235cc06c69a30178de708'
-        bootstrap_windows_amd64_sha='0421531b5846a45a53547bc9a505de2b11d91d0a48fdb5aed1d77259720db5ab'
-        vault_executable_name=vault
 
         trap "popd >/dev/null" EXIT
 
@@ -82,20 +66,14 @@ runs:
           Linux)
             case ${{ runner.arch }} in
               X64)
-                bootstrap_filename='vault_${bootstrap_version}_linux_amd64.zip'
-                bootstrap_sha=${bootstrap_linux_amd64_sha}
                 desired_vault_filename='vault_${{ inputs.vault-release }}_linux_amd64.zip'
                 ;;
 
               ARM)
-                bootstrap_filename='vault_${bootstrap_version}_linux_arm.zip'
-                bootstrap_sha=${bootstrap_linux_arm_sha}
                 desired_vault_filename='vault_${{ inputs.vault-release }}_linux_arm.zip'
                 ;;
 
               ARM64)
-                bootstrap_filename='vault_${bootstrap_version}_linux_arm64.zip'
-                bootstrap_sha=${bootstrap_linux_arm64_sha}
                 desired_vault_filename='vault_${{ inputs.vault-release }}_linux_arm64.zip'
                 ;;
 
@@ -109,14 +87,10 @@ runs:
           macOS)
             case ${{ runner.arch }} in
               X64)
-                bootstrap_filename='vault_${bootstrap_version}_darwin_amd64.zip'
-                bootstrap_sha=${bootstrap_darwin_amd64_sha}
                 desired_vault_filename='vault_${{ inputs.vault-release }}_darwin_amd64.zip'
                 ;;
 
               ARM64)
-                bootstrap_filename='vault_${bootstrap_version}_darwin_arm64.zip'
-                bootstrap_sha=${bootstrap_darwin_arm64_sha}
                 desired_vault_filename='vault_${{ inputs.vault-release }}_darwin_arm64.zip'
                 ;;
 
@@ -130,10 +104,7 @@ runs:
           Windows)
             case ${{ runner.arch }} in
               X64)
-                bootstrap_filename='vault_${bootstrap_version}_windows_amd64.zip'
-                bootstrap_sha=${bootstrap_windows_amd64_sha}
                 desired_vault_filename='vault_${{ inputs.vault-release }}_windows_amd64.zip'
-                vault_executable_name=vault.exe
                 ;;
               *)
                 log_error "unsupported architecture $arch"
@@ -152,21 +123,6 @@ runs:
           SUDO=sudo
         fi
 
-        expected_bootstrap_version_digest=${bootstrap_sha}
-        log_info "Downloading bootstrap version '${bootstrap_version}' of vault to verify version to be installed...\n      https://releases.hashicorp.com/vault/${bootstrap_version}/${bootstrap_filename}"
-        $SUDO curl -sL https://releases.hashicorp.com/vault/${bootstrap_version}/${bootstrap_filename}
-        shaBootstrap=$(shaprog ${bootstrap_filename});
-        if [[ $shaBootstrap != ${expected_bootstrap_version_digest} ]]; then
-          log_error "Unable to validate vault version: '${{ inputs.vault-release }}'"
-          exit 1
-        fi
-        $SUDO tar xvf ${bootstrap_filename} -C ${{ inputs.install-dir }}
-
-        # If the bootstrap and specified `vault` releases are the same, we're done.
-        if [[ ${{ inputs.vault-release }} == ${bootstrap_version} ]]; then
-          log_info "bootstrap version successfully verified and matches requested version so nothing else to do"
-          exit 0
-        fi
 
         semver='^v([0-9]+\.){0,2}(\*|[0-9]+)$'
         if [[ ${{ inputs.vault-release }} =~ $semver ]]; then
