@@ -18,7 +18,7 @@ Example using a pinned version:
 
 ```yaml
 jobs:
-  test_cosign_action:
+  test_vault_action:
     runs-on: ubuntu-latest
 
     permissions: {}
@@ -37,7 +37,7 @@ Example using the default version:
 
 ```yaml
 jobs:
-  test_cosign_action:
+  test_vault_action:
     runs-on: ubuntu-latest
 
     permissions: {}
