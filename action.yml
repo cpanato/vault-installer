@@ -65,7 +65,7 @@ runs:
           Linux)
             case ${{ runner.arch }} in
               X64)
-                desired_vault_filename='vault_${{ inputs.vault-release }}_linux_amd64.zip'
+                desired_vault_filename='vault_1.12.0_linux_amd64.zip'
                 ;;
 
               ARM)
