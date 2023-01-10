@@ -48,7 +48,7 @@ runs:
               shasum -a256 --ignore-missing --check $2
               ;;
             Windows)
-              powershell -command "(Get-FileHash $1 -Algorithm SHA256 | Select-Object -ExpandProperty Hash).ToLower()"
+              powershell -command "(Get-FileHash $1 -Algorithm SHA256 | Select-Object -ExpandProperty Hash).ToLower() -eq (Get-Content $2)"
               ;;
             *)
               log_error "unsupported OS ${{ runner.os }}"
@@ -135,7 +135,17 @@ runs:
         log_info "Downloading platform-specific version '${{ inputs.vault-release }}' of vault...\n      https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/${desired_vault_filename}"
         $SUDO curl -sL https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/${desired_vault_filename} -o ${desired_vault_filename}
         $SUDO curl -sL https://releases.hashicorp.com/vault/${{ inputs.vault-release }}/vault_${{ inputs.vault-release }}_SHA256SUMS -o SHA256SUMS
-        shaprog ${desired_vault_filename} SHA256SUMS;
+        if [[ ${{ runner.os }} == "Windows" ]]; then
+          log_info "Im running here '${{ runner.os }}'"
+          filesha256=$(cat SHA256SUMS | grep ${desired_vault_filename} | cut -d' ' -f1)
+          echo "$filesha256" > .expected-hash.sha256
+          cat .expected-hash.sha256
+          shaprog ${desired_vault_filename} .expected-hash.sha256
+        else
+          log_info "Im running here without windows '${{ runner.os }}'"
+          shaprog ${desired_vault_filename} SHA256SUMS
+        fi
+      
         ret=$?
         if [[ $retVal -eq 0 ]]; then
           log_info "unpacking!"
