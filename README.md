@@ -11,7 +11,7 @@ Add the following entry to your Github workflow YAML file:
 ```yaml
 uses: cpanato/vault-installer@main
 with:
-  vault-release: '1.15.6' # optional
+  vault-release: '1.16.0' # optional
 ```
 
 Example using a pinned version:
@@ -28,7 +28,7 @@ jobs:
       - name: Install Vault
         uses: cpanato/vault-installer@main
         with:
-          vault-release: '1.15.6'
+          vault-release: '1.16.0'
       - name: Check install!
         run: vault version
 ```
