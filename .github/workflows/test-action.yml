@@ -42,7 +42,7 @@ jobs:
       - name: Install Vault
         uses: ./
         with:
-          vault-release: '1.15.4'
+          vault-release: '1.17.1'
       - name: Check install!
         run: vault version
       - name: Check root directory
