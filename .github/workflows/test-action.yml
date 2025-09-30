@@ -2,24 +2,38 @@ name: test-vault-action
 
 on:
   pull_request:
-  push:
     branches:
       - 'main'
 
+permissions: {}
+
 jobs:
   test_vault_action:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-    permissions: {}
     name: Install Vault and test presence in path
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.0.0
+        with:
+          persist-credentials: false
+
       - name: Install Vault
         uses: ./
+
       - name: Check install!
         run: vault version
+
       - name: Check root directory
         run: |
           if [[ $(git diff --stat) != '' ]]; then
@@ -31,20 +45,33 @@ jobs:
         shell: bash
 
   test_vault_action_custom:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-    permissions: {}
     name: Install Custom Vault and test presence in path
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.0.0
+        with:
+          persist-credentials: false
+
       - name: Install Vault
         uses: ./
         with:
-          vault-release: '1.17.1'
+          vault-release: '1.20.0'
+
       - name: Check install!
         run: vault version
+
       - name: Check root directory
         run: |
           if [[ $(git diff --stat) != '' ]]; then
