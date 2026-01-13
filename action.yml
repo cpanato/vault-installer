@@ -10,7 +10,7 @@ inputs:
   vault-release:
     description: 'Hashicorp Vault release version to be installed'
     required: false
-    default: '1.20.4'
+    default: '1.21.2'
   install-dir:
     description: 'Where to install the Hashicorp Vault binary'
     required: false
